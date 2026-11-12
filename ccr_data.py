@@ -36,7 +36,7 @@ GOALS = [
 ]
 GOAL_LABELS = [label for _, label in GOALS]
 GRADES = ["g9", "g10", "g11", "g12"]
-SETTING_ORDER = ["Neighborhood", "Citywide, special admission & CTE", "EOP, alternative & accelerated"]
+SETTING_ORDER = ["Neighborhood", "Citywide admission, special admission & CTE", "Alternative, accelerated & Educational Options (EOP)"]
 
 
 def org_label(name: str) -> str:
@@ -193,7 +193,9 @@ def school_orgs(enrollment: list[dict], programs: list[dict]) -> list[dict]:
             "orgs_with_numbers": sum(1 for o in s["orgs"].values() if o["with_numbers"] > 0),
             "programs": s["programs"],
             "org_list": "; ".join(
-                name + (f" ({o['programs']} programs)" if o["programs"] > 1 else "") + (" (no numbers)" if o["with_numbers"] == 0 else "")
+                org_label(name) + (" (" + ", ".join(
+                    ([f"{o['programs']} programs"] if o["programs"] > 1 else []) + (["no enrollment numbers"] if o["with_numbers"] == 0 else [])) + ")"
+                    if o["programs"] > 1 or o["with_numbers"] == 0 else "")
                 for name, o in s["orgs"].items()),
             "org_names": list(s["orgs"].keys()),
             "goal_areas": len(s["goals"]),
@@ -268,7 +270,7 @@ def goal_coverage(programs, enrollment) -> list[dict]:
             "with_schools": sum(1 for p in hits if _pkey(p) in with_school),
             "organizations": len({p["Organization"] for p in hits}),
             "schools_reached": len({r["school"] for r in enrollment if _key(r) in keys}),
-            "names": "; ".join(p["Organization"] + " – " + p["Program"] for p in hits),
+            "names": "; ".join(org_label(p["Organization"]) + " · " + p["Program"] for p in hits),
         })
     return out
 
@@ -353,7 +355,7 @@ def data_gaps(programs, enrollment) -> list[dict]:
         if not rows:
             note, severity = "No schools listed", 1
         elif reported == 0:
-            note, severity = "Schools listed, no enrollment numbers", 2
+            note, severity = "Schools listed, but no enrollment numbers", 2
         elif reported < len(rows):
             note, severity = f"Enrollment missing for {len(rows) - reported} of {len(rows)} schools", 3
         if goals == 0:

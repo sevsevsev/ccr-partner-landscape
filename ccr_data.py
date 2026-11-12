@@ -36,7 +36,7 @@ GOALS = [
 ]
 GOAL_LABELS = [label for _, label in GOALS]
 GRADES = ["g9", "g10", "g11", "g12"]
-SETTING_ORDER = ["Neighborhood", "Citywide admission, special admission & CTE", "Alternative, accelerated & Educational Options (EOP)"]
+SETTING_ORDER = ["Neighborhood", "Citywide & special admission, CTE", "Alternative, accelerated & EOP"]
 
 
 def org_label(name: str) -> str:
